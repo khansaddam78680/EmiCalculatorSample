@@ -1,0 +1,113 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Loan Emi calculator</h1>
+</div>
+@*<div class="col-md-10">*@
+    <div class="form-group row">
+        <label for="LoanAmount" class="col-sm-2 col-form-label">Loan Amount: </label>
+        <div class="col-sm-2">
+            <input type="number" id="LoanAmount" placeholder="Amount" class="form-control" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="IntrestRate" class="col-sm-2 col-form-label">Intrest Rate (Per Year): </label>
+        <div class="col-sm-2">
+            <input type="number" id="IntrestRate" placeholder="Intrest Rate" class="form-control" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="Years" class="col-sm-2 col-form-label">Taken For How many Years: </label>
+        <div class="col-sm-2">
+            <input type="number" id="Years" placeholder="Years" class="form-control" required/>
+        </div>
+    </div>
+    <div class="form-group row">
+        <input type="button" class="mr-2 btn btn-success" value="Calculate" onclick="return CalculateEmi();" />
+        <input type="button" class="btn btn-danger" value="Clear Data" onclick="return ClearScreen();" />
+    </div>
+
+<div class="container" id="DatatoShow" style="display:none;">
+    <div class="row">
+        <div class="col">
+            @*<div class="text-center">*@
+            <h5 class="display-5 text-center">Your Emi Break up is as below</h5>
+            @*</div>*@
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <label class="col-form-label">Emi Per Month: </label>
+            <label class="col-form-label font-weight-bold" id="emi">DATA To Dispaly</label>
+        </div>
+        <div class="col">
+            <label class="col-form-label">Total Amount to Pay: </label>
+            <label class="col-form-label font-weight-bold" id="totalamount">DATA To Dispaly</label>
+        </div>
+        <div class="col">
+            <label class="col-form-label">Total Intrest to be Paid: </label>
+            <label class="col-form-label font-weight-bold" id="totalintrest">DATA To Dispaly</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col" id="tabledata">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function CalculateEmi() {
+        $('#DatatoShow').show();
+        var amount = $('#LoanAmount').val();
+        var intrestrate = $('#IntrestRate').val();
+        var years = $('#Years').val();
+        var EmiPerMonth = 0;
+        var IntrestAmount = 0;
+        var TotalPayableAmount = 0;
+
+        intrestrate = intrestrate / (12 * 100);
+        years = years * 12;
+        EmiPerMonth = amount * intrestrate * Math.pow(1 + intrestrate, years) / (Math.pow(1 + intrestrate, years) - 1);
+
+        TotalPayableAmount = EmiPerMonth * years;
+        IntrestAmount = TotalPayableAmount - amount;
+        $('#emi').html(EmiPerMonth.toFixed());
+        $('#totalamount').html(TotalPayableAmount.toFixed());
+        $('#totalintrest').html(IntrestAmount.toFixed());
+        //document.getElementById('emi').innerHTML = EmiPerMonth.toFixed();
+        //document.getElementById('totalamount').innerHTML = TotalPayableAmount.toFixed();
+        //document.getElementById('totalintrest').innerHTML = IntrestAmount.toFixed();
+
+        var LineNo = 0;
+        var htmltowrite = "<table class='table table-striped table-bordered' ><thead style='border:1px #5cb85c solid;'>";
+        htmltowrite += "<tr><th style='text-align:center;background-color:#5cb85c;'> Emi No</th>";
+        htmltowrite += "<th style='text-align:center;background-color:#5cb85c;'> Principal Amount Paid</th>";
+        htmltowrite += "<th style='text-align:center;background-color:#5cb85c;'> Intrest Amount Paid</th>";
+        htmltowrite += "<th style='text-align:center;background-color:#5cb85c;'> Remaining Principal Bal</th></tr>";
+        htmltowrite += "</thead><tbody>";
+        for (var i = years; i >=1; i--) {
+            LineNo++;
+            var IntrestPerMonth = intrestrate * amount;
+            var AmountPerMonth = EmiPerMonth - IntrestPerMonth;
+            amount = amount - AmountPerMonth;
+            if (amount <0) {
+                amount = 0;
+            }
+            htmltowrite += "<tr><td align='center'>" + LineNo + "</td >";
+            htmltowrite += "<td align='center'>" + AmountPerMonth.toFixed() + "</td >";
+            htmltowrite += "<td align='center'>" + IntrestPerMonth.toFixed() + "</td >";
+            htmltowrite += "<td align='center'>" + amount.toFixed() + "</td ></tr>";            
+        }
+        htmltowrite += "</tbody></table>";
+        $('#tabledata').html(htmltowrite);
+    }
+
+    function ClearScreen() {
+        $('#DatatoShow').hide();
+        $('#LoanAmount').val('');
+        $('#IntrestRate').val('');
+        $('#Years').val('');
+    }
+</script>
+
